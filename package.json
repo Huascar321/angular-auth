@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4401",
+    "start": "ng serve",
+    "start:dev": "ng serve --configuration development --port 4401",
+    "start:staging": "ng serve --configuration staging",
     "prettier:write": "npx prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,less,json,md}\" --ignore-path .prettierignore\n",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -22,6 +24,7 @@
     "@angular/platform-browser": "^15.1.0",
     "@angular/platform-browser-dynamic": "^15.1.0",
     "@angular/router": "^15.1.0",
+    "dayjs": "^1.11.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

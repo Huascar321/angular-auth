@@ -24,7 +24,10 @@ export class LoginComponent implements OnInit {
     if (this.loginForm) {
       const values = this.loginForm.value;
       if (this.loginForm.valid)
-        this.authService.login(values.username, values.password);
+        this.authService.login({
+          username: values.username,
+          password: values.password
+        });
     }
   }
 }
