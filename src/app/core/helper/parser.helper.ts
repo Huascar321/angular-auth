@@ -1,14 +1,19 @@
 export function parseTimeToSeconds(timeString: string): number {
-  const [value, unit] = timeString.split(/\s+/);
+  const match = timeString.match(/^(\d+)([smhd])$/);
+  if (!match) {
+    throw new Error('Invalid time string format');
+  }
+  const value = parseInt(match[1]);
+  const unit = match[2];
   switch (unit) {
     case 's':
-      return parseInt(value);
+      return value;
     case 'm':
-      return parseInt(value) * 60;
+      return value * 60;
     case 'h':
-      return parseInt(value) * 60 * 60;
+      return value * 60 * 60;
     case 'd':
-      return parseInt(value) * 60 * 60 * 24;
+      return value * 60 * 60 * 24;
     default:
       throw new Error(`Invalid time unit: ${unit}`);
   }

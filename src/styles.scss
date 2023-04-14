@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$primary-color: #3f51b5;
+$success-color: #28a745;
+:root {
+  --success-color: #28a745;
+  --warning-color: #ffd012;
+  --error-color: #dc3545;
+}
+
+.success-snackbar {
+  --mdc-snackbar-container-color: var(--success-color);
+  --mat-mdc-snack-bar-button-color: white;
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: var(--warning-color);
+  --mat-mdc-snack-bar-button-color: white;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: var(--error-color);
+  --mat-mdc-snack-bar-button-color: white;
+}

@@ -3,10 +3,12 @@ import {
   HttpEvent,
   HttpHandler,
   HttpInterceptor,
-  HttpRequest
+  HttpRequest,
+  HttpResponse
 } from '@angular/common/http';
 import { AuthService } from '../../modules/auth/auth.service';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { Jwt } from '../../shared/models/auth/jwt.model';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -17,7 +19,6 @@ export class TokenInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAccessToken();
-    console.log('req: ', req.headers);
 
     if (token) {
       req = req.clone({
@@ -26,6 +27,19 @@ export class TokenInterceptor implements HttpInterceptor {
         }
       });
     }
-    return next.handle(req);
+    req = req.clone({
+      withCredentials: true
+    });
+    return next.handle(req).pipe(
+      tap((event) => {
+        if (event instanceof HttpResponse) {
+          const tokenHeader = event.headers.get('new-token');
+          if (tokenHeader) {
+            const tokenInfo: Jwt = JSON.parse(tokenHeader);
+            this.authService.saveToken(tokenInfo);
+          }
+        }
+      })
+    );
   }
 }
