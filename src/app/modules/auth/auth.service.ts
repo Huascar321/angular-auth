@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { tap } from 'rxjs';
-import { CreateUserDto } from '../../shared/models/user';
 import { Jwt } from '../../shared/models/auth/jwt.model';
 import * as dayjs from 'dayjs';
 import { parseTimeToSeconds } from '../../core/helper/parser.helper';
+import type { User } from '@shared/index';
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +16,12 @@ export class AuthService {
     this.apiUrl = environment.backendApiUrl;
   }
 
-  login(data: CreateUserDto): void {
-    this.http.post<Jwt>(this.apiUrl + '/auth/login', data).pipe(
-      tap((accessTokenInfo) => {
+  login(data: Omit<User, 'id'>): void {
+    this.http
+      .post<Jwt>(this.apiUrl + '/auth/login', data)
+      .subscribe((accessTokenInfo) => {
         this.saveToken(accessTokenInfo);
-      })
-    );
+      });
   }
 
   getAccessToken(): string | null {
