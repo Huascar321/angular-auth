@@ -8,7 +8,7 @@ import type { User } from '@shared/index';
 import { SnackBarService } from '../../core/services/snackbar.service';
 import { SnackBarTheme } from '../../shared/models/snackbar.model';
 import { UserProfile } from '../../shared/models/auth/user-profile.model';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { Key } from '../../shared/models/auth/key.model';
 
 @Injectable({
@@ -17,12 +17,6 @@ import { Key } from '../../shared/models/auth/key.model';
 export class AuthService {
   private readonly apiUrl: string;
   userProfile$ = new BehaviorSubject<UserProfile | null>(null);
-  get userProfile(): Observable<UserProfile> {
-    const localStorageUserProfile = localStorage.getItem(Key.UserProfile);
-    if (localStorageUserProfile)
-      return of(JSON.parse(localStorageUserProfile) as UserProfile);
-    return this.getUserProfile();
-  }
 
   constructor(
     private http: HttpClient,
@@ -31,14 +25,22 @@ export class AuthService {
     this.apiUrl = environment.backendApiUrl;
   }
 
+  initUserProfile(): void {
+    const localStorageUserProfile = localStorage.getItem(Key.UserProfile);
+    if (localStorageUserProfile) {
+      const userProfile = JSON.parse(localStorageUserProfile) as UserProfile;
+      this.userProfile$.next(userProfile);
+    } else {
+      this.setUserProfile();
+    }
+  }
+
   login(data: Omit<User, 'id'>): void {
     this.http
       .post<Jwt>(this.apiUrl + '/auth/login', data)
       .subscribe((accessTokenInfo) => {
         this.saveToken(accessTokenInfo);
-        this.getUserProfile().subscribe((userProfile) => {
-          localStorage.setItem(Key.UserProfile, JSON.stringify(userProfile));
-        });
+        this.setUserProfile();
       });
   }
 
@@ -47,9 +49,7 @@ export class AuthService {
       .get<Jwt>(this.apiUrl + '/auth/refresh')
       .subscribe((accessTokenInfo) => {
         this.saveToken(accessTokenInfo);
-        this.getUserProfile().subscribe((userProfile) => {
-          localStorage.setItem(Key.UserProfile, JSON.stringify(userProfile));
-        });
+        this.setUserProfile();
       });
   }
 
@@ -57,15 +57,24 @@ export class AuthService {
     this.http.get<null>(this.apiUrl + '/auth/logout').subscribe(() => {
       localStorage.removeItem(Key.Token);
       localStorage.removeItem(Key.UserProfile);
+      this.userProfile$.next(null);
       this.snackBarService.openSnackBar(
-        'Has cerrado sesión',
+        'Has cerrado la sesión',
         SnackBarTheme.Success
       );
     });
   }
 
-  getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(this.apiUrl + '/auth/profile');
+  setUserProfile(): void {
+    this.http
+      .get<UserProfile>(this.apiUrl + '/auth/profile')
+      .pipe(
+        tap((userProfile) => {
+          this.userProfile$.next(userProfile);
+          localStorage.setItem(Key.UserProfile, JSON.stringify(userProfile));
+        })
+      )
+      .subscribe();
   }
 
   getAccessToken(): string | null {

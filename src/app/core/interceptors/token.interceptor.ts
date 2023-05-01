@@ -39,12 +39,7 @@ export class TokenInterceptor implements HttpInterceptor {
             const tokenInfo: Jwt = JSON.parse(tokenHeader);
             if (!this.isSameAccessToken(tokenInfo.access_token)) {
               this.authService.saveToken(tokenInfo);
-              this.authService.getUserProfile().subscribe((userProfile) => {
-                localStorage.setItem(
-                  Key.UserProfile,
-                  JSON.stringify(userProfile)
-                );
-              });
+              this.authService.setUserProfile();
             }
           }
         }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { CatService } from '../../cat/cat.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,7 @@ import { CatService } from '../../cat/cat.service';
 export class LoginComponent implements OnInit {
   loginForm?: FormGroup;
   error?: string;
+  private userProfileSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -23,6 +25,12 @@ export class LoginComponent implements OnInit {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
+    this.userProfileSubscription = this.authService.userProfile$.subscribe(
+      (userProfile) => {
+        console.log('userProfile: ', userProfile);
+      }
+    );
+    this.authService.initUserProfile();
   }
 
   login(): void {
@@ -48,11 +56,5 @@ export class LoginComponent implements OnInit {
 
   triggerRefresh(): void {
     this.authService.refresh();
-  }
-
-  getProfile(): void {
-    this.authService.userProfile.subscribe((userProfile) => {
-      console.log('userProfile: ', userProfile);
-    });
   }
 }
