@@ -48,11 +48,38 @@
         <button
           type="button"
           mat-raised-button
+          color="primary"
+          class="w-full h-12 mt-4"
+          (click)="triggerRefresh()"
+        >
+          Refrescar
+        </button>
+        <button
+          type="button"
+          mat-raised-button
+          color="primary"
+          class="w-full h-12 mt-4"
+          (click)="logout()"
+        >
+          Cerrar sesión
+        </button>
+        <button
+          type="button"
+          mat-raised-button
           color="accent"
           class="w-full h-12 mt-4"
           (click)="triggerCat()"
         >
           Cat
+        </button>
+        <button
+          type="button"
+          mat-raised-button
+          color="accent"
+          class="w-full h-12 mt-4"
+          (click)="getProfile()"
+        >
+          Obtener perfil
         </button>
       </form>
     </mat-card-content>

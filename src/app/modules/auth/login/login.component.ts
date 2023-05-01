@@ -36,9 +36,23 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  logout(): void {
+    this.authService.logout();
+  }
+
   triggerCat(): void {
     this.catService.getRequest().subscribe((cats) => {
       console.log('cats: ', cats);
+    });
+  }
+
+  triggerRefresh(): void {
+    this.authService.refresh();
+  }
+
+  getProfile(): void {
+    this.authService.userProfile.subscribe((userProfile) => {
+      console.log('userProfile: ', userProfile);
     });
   }
 }

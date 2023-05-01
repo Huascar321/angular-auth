@@ -9,6 +9,7 @@ import {
 import { AuthService } from '../../modules/auth/auth.service';
 import { Observable, tap } from 'rxjs';
 import { Jwt } from '../../shared/models/auth/jwt.model';
+import { Key } from '../../shared/models/auth/key.model';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -36,10 +37,25 @@ export class TokenInterceptor implements HttpInterceptor {
           const tokenHeader = event.headers.get('new-token');
           if (tokenHeader) {
             const tokenInfo: Jwt = JSON.parse(tokenHeader);
-            this.authService.saveToken(tokenInfo);
+            if (!this.isSameAccessToken(tokenInfo.access_token)) {
+              this.authService.saveToken(tokenInfo);
+              this.authService.getUserProfile().subscribe((userProfile) => {
+                localStorage.setItem(
+                  Key.UserProfile,
+                  JSON.stringify(userProfile)
+                );
+              });
+            }
           }
         }
       })
     );
+  }
+
+  private isSameAccessToken(token: string): boolean {
+    const actualTokenInfo = localStorage.getItem(Key.Token);
+    if (!actualTokenInfo) return false;
+    const actualToken = (JSON.parse(actualTokenInfo) as Jwt).access_token;
+    return actualToken === token;
   }
 }
